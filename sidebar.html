@@ -3,7 +3,106 @@
 <head>
   <base target="_top">
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-  <!-- The CSS package above applies Google styling to buttons and other elements. -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    .block {
+      margin-bottom: 15px;
+    }
+    .textbox {
+      width: 100%;
+      height: 80px;
+    }
+    .button {
+      width: 100%;
+      background-color: #4285F4;
+      color: black;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      line-height: 0px;
+    }
+    select {
+      width: 100%;
+    }
+    input {
+      width: 100%;
+    }
+    .button:hover {
+      background-color: #357ae8;
+    }
+    .feedback-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h3><b>Rubric Input</b></h3>
+  <div class="block">
+    <label for="rubric-text">Input a Rubric</label>
+    <textarea id="rubric-text" class="textbox"></textarea>
+  </div>
+  <div class="block">
+    <label for="rubric-name">Name for Rubric</label>
+    <input type="text" id="rubric-name" placeholder="Enter rubric name">
+  </div>
+  <div class="block">
+    <button class="button" id="save-rubric">Save Rubric</button>
+  </div>
+  
+  <h3><b>Score and Feedback</b></h3>
+  <div class="block">
+    <select id="saved-rubric">
+      <option>Select Saved Rubric</option>
+    </select>
+  </div>
+  <div class="block">
+    <button class="button" id="evaluate">Evaluate</button>
+  </div>
+  <div class="block">
+    <div class="feedback-box" id="feedback">
+      <p>No feedback yet.</p>
+    </div>
+  </div>
+  <div class="block">
+    <button class="button" id="import-feedback">Import Feedback to Doc</button>
+  </div>
+  
+  <script>
+    document.getElementById('save-rubric').addEventListener('click', function() {
+      let rubric_name = document.getElementById("rubric-name").value;
+      console.log("should save rubric : " + rubric_name);
+    });
+
+    document.getElementById('evaluate').addEventListener('click', function() {
+      console.log("should evaluate text");
+      document.getElementById('feedback').innerHTML = '<p>Evaluating...</p>';
+      google.script.run.withSuccessHandler(function(feedback) {
+        document.getElementById('feedback').innerHTML = feedback;
+      }).evaluateDocument();
+    });
+    
+    document.getElementById('import-feedback').addEventListener('click', function() {
+      //TODO make sure feedback is actually there before importing it to the doc
+      console.log("should import feedback");
+      google.script.run.importFeedbackToDoc(document.getElementById('feedback').innerText);
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. 
 
   <style>
     .branding-below {
@@ -197,4 +296,6 @@
   }
 </script>
 </body>
-</html>
+</html> -->
+
+
