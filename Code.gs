@@ -52,17 +52,12 @@ function getSavedRubrics() {
   var userProps = PropertiesService.getUserProperties();
   var savedRubricsStr = userProps.getProperty("savedRubrics");
   var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
-  var options = [];
-  
-  // Iterate through saved rubrics and create an <option> for each name.
+  var options = ['<option value="" disabled selected>Select a saved rubric</option>'];
+
   for (var rubricName in savedRubrics) {
     options.push('<option value="' + rubricName + '">' + rubricName + '</option>');
   }
-  
-  if (options.length === 0) {
-    return '<option disabled selected>No saved rubrics</option>';
-  }
-  
+
   return options.join('');
 }
 function getRubric(rubric_name) {

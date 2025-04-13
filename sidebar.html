@@ -123,18 +123,15 @@
     <button class="button" id="save-rubric" style="background-color: #dc2626;">Save Rubric</button>
   </div>
   <div class="block">
-    <select id="saved-rubric"></select>
+    <select id="saved-rubric">
+      <option value="" disabled selected>Select a saved rubric</option>
+    </select>
     <button class="button" id="delete-rubric" style="margin-top: 8px; background-color: #dc2626;">Delete Rubric</button>
-  </div>
-  
-  <h3><b>Score and Feedback</b></h3>
-  <div class="block">
-    <!-- Remove hard-coded options. Instead the dropdown will be populated dynamically -->
-    <select id="saved-rubric"></select>
   </div>
   <div class="block">
     <button class="button" id="evaluate" style="background-color: #dc2626;">Evaluate</button>
   </div>
+  <h3><b>Score and Feedback</b></h3>
   <div class="block">
     <div class="feedback-box" id="feedback">
       <p>No feedback yet.</p>
