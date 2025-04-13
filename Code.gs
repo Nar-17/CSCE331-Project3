@@ -92,6 +92,22 @@ function saveRubric(rubric_name, rubric) {
   return "Rubric '" + rubric_name + "' saved successfully!";
 }
 
+function deleteRubric(rubric_name) {
+  if (!rubric_name) throw new Error("Rubric name required for deletion.");
+
+  var userProps = PropertiesService.getUserProperties();
+  var savedRubricsStr = userProps.getProperty("savedRubrics");
+  var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
+
+  if (savedRubrics.hasOwnProperty(rubric_name)) {
+    delete savedRubrics[rubric_name];
+    userProps.setProperty("savedRubrics", JSON.stringify(savedRubrics));
+    return "Rubric '" + rubric_name + "' has been deleted.";
+  } else {
+    throw new Error("Rubric '" + rubric_name + "' not found.");
+  }
+}
+
 /**
  * Should read in entire document and evaluate it using the selected rubric
  */

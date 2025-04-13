@@ -120,7 +120,11 @@
     <input type="text" id="rubric-name" placeholder="Enter rubric name">
   </div>
   <div class="block">
-    <button class="button" id="save-rubric">Save Rubric</button>
+    <button class="button" id="save-rubric" style="background-color: #dc2626;">Save Rubric</button>
+  </div>
+  <div class="block">
+    <select id="saved-rubric"></select>
+    <button class="button" id="delete-rubric" style="margin-top: 8px; background-color: #dc2626;">Delete Rubric</button>
   </div>
   
   <h3><b>Score and Feedback</b></h3>
@@ -129,7 +133,7 @@
     <select id="saved-rubric"></select>
   </div>
   <div class="block">
-    <button class="button" id="evaluate">Evaluate</button>
+    <button class="button" id="evaluate" style="background-color: #dc2626;">Evaluate</button>
   </div>
   <div class="block">
     <div class="feedback-box" id="feedback">
@@ -137,10 +141,26 @@
     </div>
   </div>
   <div class="block">
-    <button class="button" id="import-feedback">Import Feedback to Doc</button>
+    <button class="button" id="import-feedback" style="background-color: #dc2626;">Import Feedback to Doc</button>
   </div>
   
   <script>
+    document.getElementById('delete-rubric').addEventListener('click', function() {
+      const rubricName = document.getElementById('saved-rubric').value;
+
+      if (!rubricName) {
+        alert("Please select a rubric to delete.");
+        return;
+      }
+
+      if (confirm("Are you sure you want to delete the rubric '" + rubricName + "'?")) {
+        google.script.run.withSuccessHandler(function(message) {
+          document.getElementById('feedback').innerHTML = '<p>' + message + '</p>';
+          document.getElementById('rubric-text').value = '';
+          loadSavedRubrics(); // Refresh the dropdown
+        }).deleteRubric(rubricName);
+      }
+    });
     document.getElementById('save-rubric').addEventListener('click', function() {
       let rubricName = document.getElementById("rubric-name").value;
       let rubricText = document.getElementById("rubric-text").value;
