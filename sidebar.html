@@ -125,11 +125,8 @@
   
   <h3><b>Score and Feedback</b></h3>
   <div class="block">
-    <select id="saved-rubric">
-      <option>Select Saved Rubric</option>
-      <option>Rubric 1</option>
-      <option>Rubric 2</option>
-    </select>
+    <!-- Remove hard-coded options. Instead the dropdown will be populated dynamically -->
+    <select id="saved-rubric"></select>
   </div>
   <div class="block">
     <button class="button" id="evaluate">Evaluate</button>
@@ -144,18 +141,39 @@
   </div>
   
   <script>
+    // Function to load saved rubrics and update the dropdown
+    function loadSavedRubrics() {
+      google.script.run.withSuccessHandler(function(optionsHtml) {
+        document.getElementById('saved-rubric').innerHTML = optionsHtml;
+      }).getSavedRubrics();
+    }
+    
+    // Call this when the page loads
+    document.addEventListener("DOMContentLoaded", function() {
+      loadSavedRubrics();
+    });
+
     document.getElementById('save-rubric').addEventListener('click', function() {
       let rubricName = document.getElementById("rubric-name").value;
-      console.log("Should save rubric:", rubricName);
-      // google.script.run.saveRubric(rubricName, document.getElementById("rubric-text").value);
+      let rubricText = document.getElementById("rubric-text").value;
+      // Show a temporary message to the user
+      document.getElementById('feedback').innerHTML = '<p>Saving rubric...</p>';
+      
+      google.script.run.withSuccessHandler(function(message) {
+        // Display the success message in the feedback element
+        document.getElementById('feedback').innerHTML = '<p>' + message + '</p>';
+        // Reload the saved rubrics to update the dropdown.
+        loadSavedRubrics();
+      }).saveRubric(rubricName, rubricText);
     });
 
     document.getElementById('evaluate').addEventListener('click', function() {
-      console.log("Should evaluate text");
+      var rubric = document.getElementById("rubric-text").value;
       document.getElementById('feedback').innerHTML = '<p>Evaluating...</p>';
+      
       google.script.run.withSuccessHandler(function(feedback) {
         document.getElementById('feedback').innerHTML = feedback;
-      }).evaluateDocument();
+      }).evaluateDocument(rubric);
     });
     
     document.getElementById('import-feedback').addEventListener('click', function() {

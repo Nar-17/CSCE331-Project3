@@ -48,19 +48,76 @@ function showSidebar() {
       .setTitle('Rubric Evaluator');
   DocumentApp.getUi().showSidebar(ui);
 }
-
+function getSavedRubrics() {
+  var userProps = PropertiesService.getUserProperties();
+  var savedRubricsStr = userProps.getProperty("savedRubrics");
+  var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
+  var options = [];
+  
+  // Iterate through saved rubrics and create an option for each key.
+  for (var rubricName in savedRubrics) {
+    options.push('<option value="' + rubricName + '">' + rubricName + '</option>');
+  }
+  
+  // If no rubrics are saved, show a default disabled option.
+  if (options.length === 0) {
+    return '<option disabled selected>No saved rubrics</option>';
+  }
+  
+  return options.join('');
+}
 /**
  * Saves the provided rubric somewhere
  */
 function saveRubric(rubric_name, rubric) {
-  //TODO
+  if (!rubric_name || !rubric) {
+    throw new Error("Both rubric name and rubric text must be provided.");
+  }
+  
+  // Get the user-level properties (available across documents for the user)
+  var userProps = PropertiesService.getUserProperties();
+  
+  // Retrieve any previously saved rubrics (stored as a JSON string)
+  var savedRubricsStr = userProps.getProperty("savedRubrics");
+  var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
+  
+  // Add/update the rubric under the provided name
+  savedRubrics[rubric_name] = rubric;
+  
+  // Save the updated rubrics back into the User Properties
+  userProps.setProperty("savedRubrics", JSON.stringify(savedRubrics));
+  
+  // Optionally, log the saved rubrics for debugging
+  Logger.log("Saved rubrics: " + JSON.stringify(savedRubrics));
+  
+  return "Rubric '" + rubric_name + "' saved successfully!";
 }
 
 /**
  * Should read in entire document and evaluate it using the selected rubric
  */
-function evaluateDocument() {
-  //TODO
+function evaluateDocument(rubric) {
+  var selectedText;
+  try {
+    // Retrieve the selected text from the document
+    selectedText = getSelectedText();
+  } catch(e) {
+    return "<p style='color:red;'>Error: " + e.message + "</p>";
+  }
+  
+  // Combine the rubric and the selected text.
+  var evaluationInput = "Rubric:\n" + rubric + "\n\nDocument Text:\n" + selectedText.join("\n");
+  
+  // Log for debugging (view via Apps Script Logger)
+  Logger.log("Evaluation Input:\n" + evaluationInput);
+  
+  // Simulate an evaluation result.  
+  // Replace this with your actual API call later.
+  var evaluationResult = "Simulated Evaluation: Based on the rubric, the selected document text meets the criteria fairly well. " +
+                         "For instance, the tone is appropriate and the clarity is sufficient, but adding more examples could further improve the evaluation.";
+                         
+  // Return the evaluation result as HTML.
+  return "<p>" + evaluationResult + "</p>";
 }
 
 /**
