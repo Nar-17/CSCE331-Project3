@@ -54,17 +54,22 @@ function getSavedRubrics() {
   var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
   var options = [];
   
-  // Iterate through saved rubrics and create an option for each key.
+  // Iterate through saved rubrics and create an <option> for each name.
   for (var rubricName in savedRubrics) {
     options.push('<option value="' + rubricName + '">' + rubricName + '</option>');
   }
   
-  // If no rubrics are saved, show a default disabled option.
   if (options.length === 0) {
     return '<option disabled selected>No saved rubrics</option>';
   }
   
   return options.join('');
+}
+function getRubric(rubric_name) {
+  var userProps = PropertiesService.getUserProperties();
+  var savedRubricsStr = userProps.getProperty("savedRubrics");
+  var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
+  return savedRubrics[rubric_name] || "";
 }
 /**
  * Saves the provided rubric somewhere
@@ -74,20 +79,14 @@ function saveRubric(rubric_name, rubric) {
     throw new Error("Both rubric name and rubric text must be provided.");
   }
   
-  // Get the user-level properties (available across documents for the user)
   var userProps = PropertiesService.getUserProperties();
-  
-  // Retrieve any previously saved rubrics (stored as a JSON string)
   var savedRubricsStr = userProps.getProperty("savedRubrics");
   var savedRubrics = savedRubricsStr ? JSON.parse(savedRubricsStr) : {};
   
-  // Add/update the rubric under the provided name
+  // Save the rubric content under its name
   savedRubrics[rubric_name] = rubric;
   
-  // Save the updated rubrics back into the User Properties
   userProps.setProperty("savedRubrics", JSON.stringify(savedRubrics));
-  
-  // Optionally, log the saved rubrics for debugging
   Logger.log("Saved rubrics: " + JSON.stringify(savedRubrics));
   
   return "Rubric '" + rubric_name + "' saved successfully!";

@@ -141,28 +141,14 @@
   </div>
   
   <script>
-    // Function to load saved rubrics and update the dropdown
-    function loadSavedRubrics() {
-      google.script.run.withSuccessHandler(function(optionsHtml) {
-        document.getElementById('saved-rubric').innerHTML = optionsHtml;
-      }).getSavedRubrics();
-    }
-    
-    // Call this when the page loads
-    document.addEventListener("DOMContentLoaded", function() {
-      loadSavedRubrics();
-    });
-
     document.getElementById('save-rubric').addEventListener('click', function() {
       let rubricName = document.getElementById("rubric-name").value;
       let rubricText = document.getElementById("rubric-text").value;
-      // Show a temporary message to the user
       document.getElementById('feedback').innerHTML = '<p>Saving rubric...</p>';
       
       google.script.run.withSuccessHandler(function(message) {
-        // Display the success message in the feedback element
         document.getElementById('feedback').innerHTML = '<p>' + message + '</p>';
-        // Reload the saved rubrics to update the dropdown.
+        // Refresh the drop-down after saving.
         loadSavedRubrics();
       }).saveRubric(rubricName, rubricText);
     });
@@ -175,10 +161,30 @@
         document.getElementById('feedback').innerHTML = feedback;
       }).evaluateDocument(rubric);
     });
-    
+
     document.getElementById('import-feedback').addEventListener('click', function() {
       console.log("Should import feedback");
       google.script.run.importFeedbackToDoc(document.getElementById('feedback').innerText);
+    });
+
+    // Function to load saved rubrics into the dropdown.
+    function loadSavedRubrics() {
+      google.script.run.withSuccessHandler(function(optionsHtml) {
+        document.getElementById('saved-rubric').innerHTML = optionsHtml;
+      }).getSavedRubrics();
+    }
+
+    // When the dropdown selection changes, load the rubric content.
+    document.getElementById('saved-rubric').addEventListener('change', function() {
+      var rubricName = this.value;
+      google.script.run.withSuccessHandler(function(rubricText) {
+        document.getElementById('rubric-text').value = rubricText;
+      }).getRubric(rubricName);
+    });
+
+    // Load saved rubrics when page is ready.
+    document.addEventListener("DOMContentLoaded", function() {
+      loadSavedRubrics();
     });
   </script>
 </body>
