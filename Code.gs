@@ -29,7 +29,7 @@ function onOpen(e) {
  * 
  */
 function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+  return HtmlService.createTemplateFromFile("dark.css").getRawContent();
 }
 /**
  * Runs when the add-on is installed.
@@ -52,9 +52,10 @@ function onInstall(e) {
  * the mobile add-on version.
  */
 function showSidebar() {
-  const ui = HtmlService.createHtmlOutputFromFile('sidebar')
-      .setTitle('Rubric Evaluator');
-  DocumentApp.getUi().showSidebar(ui);
+  var ui = HtmlService.createTemplateFromFile('sidebar').evaluate()
+  .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+  .setTitle('Rubric Evaluator');
+DocumentApp.getUi().showSidebar(ui);
 }
 
 /**
