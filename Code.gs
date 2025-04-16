@@ -84,7 +84,9 @@ function saveRubric(rubric_name, rubric) {
   userProps.setProperty("savedRubrics", JSON.stringify(savedRubrics));
   Logger.log("Saved rubrics: " + JSON.stringify(savedRubrics));
   
-  return "Rubric '" + rubric_name + "' saved successfully!";
+  msg = "Rubric '" + rubric_name + "' saved successfully!";
+  showAlert(msg)
+  return msg;
 }
 
 function deleteRubric(rubric_name) {
@@ -126,8 +128,21 @@ function evaluateDocument(rubric) {
   var evaluationResult = "Simulated Evaluation: Based on the rubric, the selected document text meets the criteria fairly well. " +
                          "For instance, the tone is appropriate and the clarity is sufficient, but adding more examples could further improve the evaluation.";
                          
+  showEvaluationPopup(evaluationResult);
+
   // Return the evaluation result as HTML.
   return "<p>" + evaluationResult + "</p>";
+}
+
+function showEvaluationPopup(evaluation) {
+  const template = HtmlService.createTemplateFromFile("evalPopup");
+  template.evaluation = evaluation;
+  const popup = template.evaluate().setWidth(800).setHeight(600);
+	DocumentApp.getUi().showModalDialog(popup, "Evaluation");
+}
+
+function showAlert(msg) {
+  DocumentApp.getUi().alert(msg);
 }
 
 /**
