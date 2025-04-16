@@ -24,6 +24,14 @@ function onOpen(e) {
 }
 
 /**
+ * Allows use of seperate CSS stylesheet files without being able to have CSS files
+ * Function gets the info of an html file that only contains CSS styling
+ * 
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+/**
  * Runs when the add-on is installed.
  * This method is only used by the regular add-on, and is never called by
  * the mobile add-on version.

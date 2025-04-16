@@ -2,118 +2,16 @@
 <html>
 <head>
   <base target="_top">
-  <!-- If you want to keep Google’s styling, uncomment the line below and rely on the overrides further down:
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-  -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    html, body {
-      margin: 0; 
-      padding: 0;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      padding: 16px;
-    }
-    h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #2a2a2a;
-      color: #ffffff !important;
-    }
-    .block {
-      margin-bottom: 20px;
-    }
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 6px;
-    }
-    /* Common input styling */
-    textarea, input[type="text"], select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      margin-top: 4px;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background-color: #1f1f1f;
-      color: #ffffff;
-      font-size: 14px;
-      outline: none;
-      background-color: #1f1f1f !important;
-      color: #ffffff !important;
-    }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-    textarea::placeholder,
-    input[type="text"]::placeholder {
-      color: #ccc !important;
-      opacity: 1 !important;
-    }
-    /* Force the <select> to use your dark background and text color */
-    #saved-rubric,
-    .block select,
-    body select {
-      background-color: #1f1f1f !important;
-      color: #ffffff !important;
-      border: 1px solid #444 !important;
-      border-radius: 6px !important;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-    }
-    #saved-rubric option {
-      background-color: #1f1f1f !important;
-      color: #ffffff !important;
-    }
-    /* Add custom arrow using a complete base64-encoded SVG */
-    #saved-rubric {
-      padding-right: 30px; /* Make room for the arrow */
-      background: #1f1f1f url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0id2hpdGUiIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMS41IDUuNWw2IDYgNi02eiIvPjwvc3ZnPg==') 
-        no-repeat right 8px center / 16px auto !important;
-    }
-    .button {
-      width: 100%;
-      background: linear-gradient(90deg, rgba(59,130,246,0.8), rgba(99,102,241,0.8));
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .button:hover {
-      background: linear-gradient(90deg, rgba(99,102,241,0.8), rgba(59,130,246,0.8));
-      transform: translateY(-2px);
-    }
-    .feedback-box {
-      border: 1px solid #333;
-      padding: 12px;
-      background-color: #1f1f1f;
-      border-radius: 6px;
-    }
-    .feedback-box p {
-      margin: 0;
-      color: #ccc;
-    }
-  </style>
+  <!-- Optionally import a modern sans-serif font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <?!= include('dark.css'); ?>
 </head>
 <body>
   <h3><b>Rubric Input</b></h3>
   <div class="block">
     <label for="rubric-text">Input a Rubric</label>
-    <textarea id="rubric-text" placeholder="Enter your rubric here"></textarea>
+    <textarea id="rubric-text" class="textbox"></textarea>
   </div>
   <div class="block">
     <label for="rubric-name">Name for Rubric</label>
@@ -127,8 +25,6 @@
   <div class="block">
     <select id="saved-rubric">
       <option>Select Saved Rubric</option>
-      <option>Rubric 1</option>
-      <option>Rubric 2</option>
     </select>
   </div>
   <div class="block">
@@ -145,13 +41,12 @@
   
   <script>
     document.getElementById('save-rubric').addEventListener('click', function() {
-      let rubricName = document.getElementById("rubric-name").value;
-      console.log("Should save rubric:", rubricName);
-      // google.script.run.saveRubric(rubricName, document.getElementById("rubric-text").value);
+      let rubric_name = document.getElementById("rubric-name").value;
+      console.log("should save rubric : " + rubric_name);
     });
 
     document.getElementById('evaluate').addEventListener('click', function() {
-      console.log("Should evaluate text");
+      console.log("should evaluate text");
       document.getElementById('feedback').innerHTML = '<p>Evaluating...</p>';
       google.script.run.withSuccessHandler(function(feedback) {
         document.getElementById('feedback').innerHTML = feedback;
@@ -159,7 +54,8 @@
     });
     
     document.getElementById('import-feedback').addEventListener('click', function() {
-      console.log("Should import feedback");
+      // Ensure feedback is available before importing it into the doc
+      console.log("should import feedback");
       google.script.run.importFeedbackToDoc(document.getElementById('feedback').innerText);
     });
   </script>
