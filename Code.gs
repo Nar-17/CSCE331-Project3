@@ -148,8 +148,33 @@ function showAlert(msg) {
 /**
  * takes the provided feedback and appends it to the end of the doc?
  */
-function importFeedbackToDoc() {
-  //TODO
+function importFeedbackToDoc(feedback) {
+  if (!feedback) {
+    DocumentApp.getUi().alert('No feedback to import.');
+    return;
+  }
+  
+  const body = DocumentApp.getActiveDocument().getBody();
+  const paras = body.getParagraphs();
+  const lastParaText = paras[paras.length - 1].getText().trim();
+  const firstLine = feedback.split('\n')[0].trim();
+  
+  // If the first line of your feedback is already the last paragraph,
+  // assume we’ve imported it.
+  if (lastParaText === firstLine) {
+    DocumentApp.getUi().alert('Feedback already imported.');
+    return;
+  }
+  
+  // Otherwise append it
+  body.appendHorizontalRule();
+  body.appendParagraph('Imported Feedback:')
+      .setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  feedback.split('\n').forEach(function(line) {
+    body.appendParagraph(line);
+  });
+  
+  DocumentApp.getUi().alert('Feedback imported to document.');
 }
 
 /**

@@ -14,67 +14,21 @@
         color: #ffffff;
         padding: 16px;
       }
-      h3 {
-        font-size: 18px;
-        margin-bottom: 8px;
-        padding-bottom: 4px;
-        border-bottom: 1px solid #2a2a2a;
-        color: #ffffff !important;
-      }
       .block {
         margin-bottom: 20px;
       }
-      label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 6px;
-      }
-      /* Common input styling */
-      textarea, input[type="text"], select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 10px;
-        margin-top: 4px;
-        border-radius: 6px;
-        border: 1px solid #444;
+      .feedback-box {
+        border: 1px solid #333;
+        padding: 12px;
         background-color: #1f1f1f;
-        color: #ffffff;
-        font-size: 14px;
-        outline: none;
-        background-color: #1f1f1f !important;
-        color: #ffffff !important;
+        border-radius: 6px;
       }
-      textarea {
-        min-height: 80px;
-        resize: vertical;
+      .feedback-box p {
+        margin: 0;
+        color: #ccc;
       }
-      textarea::placeholder,
-      input[type="text"]::placeholder {
-        color: #ccc !important;
-        opacity: 1 !important;
-      }
-      /* Force the <select> to use your dark background and text color */
-      #saved-rubric,
-      .block select,
-      body select {
-        background-color: #1f1f1f !important;
-        color: #ffffff !important;
-        border: 1px solid #444 !important;
-        border-radius: 6px !important;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-      }
-      #saved-rubric option {
-        background-color: #1f1f1f !important;
-        color: #ffffff !important;
-      }
-      /* Add custom arrow using a complete base64-encoded SVG */
-      #saved-rubric {
-        padding-right: 30px; /* Make room for the arrow */
-        background: #1f1f1f url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0id2hpdGUiIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMS41IDUuNWw2IDYgNi02eiIvPjwvc3ZnPg==') 
-          no-repeat right 8px center / 16px auto !important;
-      }
+
+      /* ← original button styles */
       .button {
         width: 100%;
         background: linear-gradient(90deg, rgba(59,130,246,0.8), rgba(99,102,241,0.8));
@@ -94,16 +48,6 @@
         background: linear-gradient(90deg, rgba(99,102,241,0.8), rgba(59,130,246,0.8));
         transform: translateY(-2px);
       }
-      .feedback-box {
-        border: 1px solid #333;
-        padding: 12px;
-        background-color: #1f1f1f;
-        border-radius: 6px;
-      }
-      .feedback-box p {
-        margin: 0;
-        color: #ccc;
-      }
     </style>
   </head>
   <body>
@@ -112,8 +56,28 @@
         <p><?= evaluation ?></p>
       </div>
     </div>
+
     <div class="block">
-      <button onclick="google.script.host.close()" class="button" id="import-feedback" style="background-color: #dc2626;">Close</button>
+      <!-- import button uses the same .button CSS, with inline red if you like -->
+      <button id="import-btn" class="button" style="background-color: #dc2626;">
+        Import Feedback
+      </button>
     </div>
+
+    <div class="block">
+      <!-- close button, also styled the same way -->
+      <button onclick="google.script.host.close()" class="button" style="background-color: #dc2626;">
+        Close
+      </button>
+    </div>
+
+    <script>
+      document.getElementById('import-btn').addEventListener('click', function() {
+        const fbText = document.getElementById('feedback').innerText;
+        google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .importFeedbackToDoc(fbText);
+      });
+    </script>
   </body>
 </html>
