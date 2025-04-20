@@ -170,7 +170,7 @@ function evaluateDocument(rubric) {
     { role: 'user',   content: 'Please grade the following document according to this rubric' + rubric + " Here is the document to grade" + selectedText.join("\n")}
   ];
 
-  const evaluationResult = chatCompletions(messages);
+  const evaluationResult = chatCompletions(evaluationInput);
 
   // Log for debugging (view via Apps Script Logger)
   Logger.log("Evaluation Input:\n" + evaluationInput);
