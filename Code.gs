@@ -1,3 +1,51 @@
+function chatCompletions(messages) {
+  const endpoint = "https://models.github.ai/inference";
+  const model = "deepseek/DeepSeek-V3-0324";
+  const props = PropertiesService.getScriptProperties();
+  const token = props.getProperty("LYLE_MODEL_TOKEN");
+  
+  const url = endpoint + '/chat/completions?api-version=2024-05-01-preview';
+  const payload = {
+    model,
+    messages,
+    temperature: 0.0,
+    top_p:      1.0,
+    max_tokens: 1000
+  };
+
+  const options = {
+    method:            'post',
+    contentType:       'application/json',
+    muteHttpExceptions: false,
+    headers: {
+      Authorization: 'Bearer ' + token
+    },
+    payload: JSON.stringify(payload)
+  };
+
+  const resp = UrlFetchApp.fetch(url, options);
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error(`Inference API error ${code}: ${resp.getContentText()}`);
+  }
+  const data = JSON.parse(resp.getContentText());
+  return data.choices[0].message.content;
+}
+
+  /** Example runner in Apps Script */
+function runDemo() {
+  const res = UrlFetchApp.fetch('https://www.google.com', {muteHttpExceptions: true});
+  console.log(res.getResponseCode());
+
+  const messages = [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user',   content: 'What is the capital of France?' }
+  ];
+
+  const answer = chatCompletions(messages);
+  console.log('AI says: %s', answer);
+}
+
 /**
  * @OnlyCurrentDoc
  *
@@ -117,16 +165,15 @@ function evaluateDocument(rubric) {
     return "<p style='color:red;'>Error: " + e.message + "</p>";
   }
   
-  // Combine the rubric and the selected text.
-  var evaluationInput = "Rubric:\n" + rubric + "\n\nDocument Text:\n" + selectedText.join("\n");
-  
+  const evaluationInput = [
+    { role: 'system', content: 'You are a helpful ruberic grading assistant. A user will give you a selection of text and a ruberic, your job is to critically evlauate how well the selection of text adheres to the requests present in the ruberic and provide qualitative feedback in the form of a comment and quantitative feedback in the form of a numerical grade in between 0 and 100. If the ruberic contains subsections, you should also include how many points are satisfied in each subsection.' },
+    { role: 'user',   content: 'Please grade the following document according to this rubric' + rubric + " Here is the document to grade" + selectedText.join("\n")}
+  ];
+
+  const evaluationResult = chatCompletions(messages);
+
   // Log for debugging (view via Apps Script Logger)
   Logger.log("Evaluation Input:\n" + evaluationInput);
-  
-  // Simulate an evaluation result.  
-  // Replace this with your actual API call later.
-  var evaluationResult = "Simulated Evaluation: Based on the rubric, the selected document text meets the criteria fairly well. " +
-                         "For instance, the tone is appropriate and the clarity is sufficient, but adding more examples could further improve the evaluation.";
                          
   showEvaluationPopup(evaluationResult);
 
