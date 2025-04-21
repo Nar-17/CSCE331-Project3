@@ -34,17 +34,63 @@ function chatCompletions(messages) {
 
   /** Example runner in Apps Script */
 function runDemo() {
-  const res = UrlFetchApp.fetch('https://www.google.com', {muteHttpExceptions: true});
+  // sanity‑check fetch
+  const res = UrlFetchApp.fetch('https://www.google.com', { muteHttpExceptions: true });
   console.log(res.getResponseCode());
 
+  // define your rubric‑grading prompt
   const messages = [
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user',   content: 'What is the capital of France?' }
+    {
+      role: 'system',
+      content: `
+You are a rubric-based grading assistant.
+When I give you:
+
+1. A rubric with numbered criteria and point‑values.
+2. A student submission.
+
+You must:
+• For each rubric criterion, assign the appropriate points and give a one‑sentence justification.
+• Sum those awarded points and report “Total Awarded / Total Possible” and a final percentage.
+• Return everything as a JSON object and include a "final_grade" field that repeats the score in the form "N/M (P%)".
+• Do NOT include any overall comments, suggestions, or text beyond the closing brace of your JSON.
+The JSON must look exactly like this:
+
+\`\`\`json
+{
+  "criteria": [
+    { "name": "Criterion 1 name", "awarded": X, "possible": Y, "justification": "…" }
+    // …
+  ],
+  "total_awarded": N,
+  "total_possible": M,
+  "percentage": P,
+  "final_grade": "N/M (P%)"
+}
+\`\`\`
+      `.trim()
+    },
+    {
+      role: 'user',
+      content: `
+Rubric:
+1. Thesis clarity (10 pts)
+2. Evidence & examples (15 pts)
+3. Organization (10 pts)
+4. Style & mechanics (5 pts)
+
+Submission:
+[Paste the student’s essay here]
+      `.trim()
+    }
   ];
 
+  // call your ChatGPT wrapper
   const answer = chatCompletions(messages);
   console.log('AI says: %s', answer);
 }
+
+
 
 /**
  * @OnlyCurrentDoc
