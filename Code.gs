@@ -132,6 +132,77 @@ function onInstall(e) {
   onOpen(e);
 }
 
+function insertImageFromURI(imageUri) {
+  const parts = imageUri.split(',');
+  const mime  = parts[0].match(/data:(.*);base64/)[1];
+  const bytes = Utilities.base64Decode(parts[1]);
+  const blob  = Utilities.newBlob(bytes, mime, 'boxplot.png');
+  DocumentApp.getActiveDocument().getBody().appendImage(blob);
+}
+
+function saveGradesForRubric(grades, rubricName) {
+  const userProps = PropertiesService.getUserProperties();
+  const key = `grades_${rubricName}`;
+  userProps.setProperty(key, JSON.stringify(grades));
+  return `Saved ${grades.length} grades for '${rubricName}'.`;
+}
+
+function showBoxPlotPopup(grades, rubricName) {
+  // persist them
+  saveGradesForRubric(grades, rubricName);
+  // build the HTML UI, passing our data
+  const tpl = HtmlService.createTemplateFromFile('boxPlotPopup');
+  tpl.grades = grades;
+  tpl.rubricName = rubricName;
+  const html = tpl.evaluate()
+    .setWidth(600)
+    .setHeight(500);
+  DocumentApp.getUi().showModalDialog(html, `Grades for '${rubricName}'`);
+}
+
+function insertPlotAndStats(imageUri, rubricName) {
+  const parts = imageUri.split(',');
+  const mime  = parts[0].match(/data:(.*);base64/)[1];
+  const bytes = Utilities.base64Decode(parts[1]);
+  const blob  = Utilities.newBlob(bytes, mime, 'boxplot.png');
+  
+  const body = DocumentApp.getActiveDocument().getBody();
+  body.appendImage(blob);
+  
+  
+  const grades = JSON.parse(
+    PropertiesService.getUserProperties()
+      .getProperty(`grades_${rubricName}`) || '[]'
+  );
+  if (!grades.length) {
+    body.appendParagraph('No grades found for "' + rubricName + '".');
+    return;
+  }
+  grades.sort((a,b)=>a-b);
+  const quartile = (arr, q) => {
+    const pos = (arr.length - 1) * q;
+    const lo = Math.floor(pos), hi = Math.ceil(pos), t = pos - lo;
+    return arr[lo] + (arr[hi] - arr[lo]) * t;
+  };
+  const low  = Math.min(...grades),
+        q1   = quartile(grades, .25),
+        med  = quartile(grades, .50),
+        q3   = quartile(grades, .75),
+        high = Math.max(...grades),
+        mean = grades.reduce((s,x)=>s+x,0) / grades.length;
+  
+  
+  body.appendParagraph('Summary Statistics:')
+      .setHeading(DocumentApp.ParagraphHeading.HEADING3);
+  body.appendParagraph(`• Low: ${low.toFixed(2)}`);
+  body.appendParagraph(`• Q1: ${q1.toFixed(2)}`);
+  body.appendParagraph(`• Median: ${med.toFixed(2)}`);
+  body.appendParagraph(`• Q3: ${q3.toFixed(2)}`);
+  body.appendParagraph(`• High: ${high.toFixed(2)}`);
+  body.appendParagraph(`• Mean: ${mean.toFixed(2)}`);
+}
+
+
 /**
  * Opens a sidebar in the document containing the add-on's user interface.
  * This method is only used by the regular add-on, and is never called by

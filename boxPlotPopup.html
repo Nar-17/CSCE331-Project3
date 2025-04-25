@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+      body { font-family: Arial,sans-serif; margin: 16px; }
+      #chart { width: 100%; height: 350px; }
+      .button { 
+        margin-top: 12px; padding: 8px 12px; 
+        background-color: #2563EB; color: #fff; border: none; border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart"></div>
+    <button class="button" id="import">Import plot to document</button>
+    <button class="button" onclick="google.script.host.close()">Close</button>
+
+    <script>
+      // 1. Load the Google Charts corechart package
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(draw);
+
+      function draw() {
+        // Injected unescaped JSON from server
+        const grades     = <?!= JSON.stringify(grades) ?>;
+        const rubricName = '<?!= rubricName ?>';
+
+        // sort and compute quartiles
+        grades.sort((a,b)=>a-b);
+        function q(arr, q) {
+          const pos = (arr.length - 1) * q;
+          const lo = Math.floor(pos), hi = Math.ceil(pos), t = pos - lo;
+          return arr[lo] + (arr[hi] - arr[lo]) * t;
+        }
+        const low  = Math.min(...grades),
+              q1   = q(grades, .25),
+              med  = q(grades, .50),
+              q3   = q(grades, .75),
+              high = Math.max(...grades);
+
+        // build the data table
+        const data = google.visualization.arrayToDataTable([
+          ['Label','Low','Q1','Q3','High'],
+          ['Grades', low,  q1,   q3,   high]
+        ]);
+
+         window.myChart = new google.visualization.CandlestickChart(
+          document.getElementById('chart')
+        );
+        myChart.draw(data, {
+          legend: 'none',
+          title: `Box Plot for "<?= rubricName ?>"`
+        });
+      }
+
+      // 2. When “Import plot to document” is clicked, grab the PNG data URI
+      document.getElementById('import').addEventListener('click', () => {
+        const uri = window.myChart.getImageURI();
+        google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          // pass both the image URI and the rubricName
+          .insertPlotAndStats(uri, '<?!= rubricName ?>');
+      });
+    </script>
+  </body>
+</html>

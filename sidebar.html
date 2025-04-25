@@ -140,6 +140,17 @@
   <div class="block">
     <button class="button" id="import-feedback" style="background-color: #dc2626;">Import Feedback to Doc</button>
   </div>
+
+  <h3><b>Grades Box Plot</b></h3>
+  <div class="block">
+    <label for="grades-input">Enter grades (0–100), comma-separated</label>
+    <textarea id="grades-input" placeholder="e.g. 85, 92, 76, 100"></textarea>
+  </div>
+  <div class="block">
+    <button class="button" id="view-boxplot" style="background-color: #2563EB;">
+      View Box Plot
+    </button>
+  </div>
   
   <script>
     document.getElementById('delete-rubric').addEventListener('click', function() {
@@ -202,6 +213,28 @@
     // Load saved rubrics when page is ready.
     document.addEventListener("DOMContentLoaded", function() {
       loadSavedRubrics();
+    });
+
+    // after your other listeners…
+    document.getElementById('view-boxplot').addEventListener('click', () => {
+      // parse grades into an array of numbers
+      const raw = document.getElementById('grades-input').value;
+      const grades = raw.split(',')
+        .map(s => Number(s.trim()))
+        .filter(n => !isNaN(n) && n >= 0 && n <= 100);
+      if (!grades.length) {
+        alert('Please enter at least one valid grade between 0 and 100.');
+        return;
+      }
+      // also grab the rubric name so we namespace the data
+      const rubricName = document.getElementById('saved-rubric').value
+        || document.getElementById('rubric-name').value;
+      if (!rubricName) {
+        alert('You must have a rubric selected or named before saving grades.');
+        return;
+      }
+      // call server to show the box plot popup
+      google.script.run.withSuccessHandler().showBoxPlotPopup(grades, rubricName);
     });
 
   </script>
