@@ -147,7 +147,12 @@
     <textarea id="grades-input" placeholder="e.g. 85, 92, 76, 100"></textarea>
   </div>
   <div class="block">
-    <button class="button" id="view-boxplot" style="background-color: #2563EB;">
+    <button class="button" id="enter-values" style="background-color: #dc2626;">
+      Enter Values
+    </button>
+  </div>
+  <div class="block">
+    <button class="button" id="view-boxplot" style="background-color: #dc2626;">
       View Box Plot
     </button>
   </div>
@@ -215,27 +220,47 @@
       loadSavedRubrics();
     });
 
-    // after your other listeners…
-    document.getElementById('view-boxplot').addEventListener('click', () => {
-      // parse grades into an array of numbers
+    document.getElementById('enter-values').addEventListener('click', function() {
       const raw = document.getElementById('grades-input').value;
-      const grades = raw.split(',')
-        .map(s => Number(s.trim()))
-        .filter(n => !isNaN(n) && n >= 0 && n <= 100);
-      if (!grades.length) {
-        alert('Please enter at least one valid grade between 0 and 100.');
+      const newGrades = raw
+      .split(',')
+      .map(s => s.trim())         // trim each entry
+      .filter(s => s !== '')      // drop any blanks
+      .map(Number)                // convert to numbers
+      .filter(n => !isNaN(n) && n >= 0 && n <= 100);
+      if (!newGrades.length) {
+        alert('Please enter at least one valid grade (0–100).');
         return;
       }
-      // also grab the rubric name so we namespace the data
+
       const rubricName = document.getElementById('saved-rubric').value
         || document.getElementById('rubric-name').value;
       if (!rubricName) {
-        alert('You must have a rubric selected or named before saving grades.');
+        alert('Select or name a rubric before entering grades.');
         return;
       }
-      // call server to show the box plot popup
-      google.script.run.withSuccessHandler().showBoxPlotPopup(grades, rubricName);
+
+      google.script.run
+        .withSuccessHandler(function(msg) {
+          // show confirmation
+          document.getElementById('feedback').innerHTML = '<p>' + msg + '</p>';
+          document.getElementById('grades-input').value = ''; // clear box
+        })
+        .appendGrades(newGrades, rubricName);
     });
+
+    document.getElementById('view-boxplot').addEventListener('click', () => {
+    const rubricName = document.getElementById('saved-rubric').value
+      || document.getElementById('rubric-name').value;
+    if (!rubricName) {
+      alert('Select or name a rubric first.');
+      return;
+    }
+    // Pass an empty array so we only SHOW existing saved grades
+    google.script.run
+      .withSuccessHandler()
+      .addGradesAndShowPopup([], rubricName);
+  });
 
   </script>
 </body>

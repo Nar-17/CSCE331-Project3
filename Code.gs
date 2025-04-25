@@ -202,6 +202,56 @@ function insertPlotAndStats(imageUri, rubricName) {
   body.appendParagraph(`• Mean: ${mean.toFixed(2)}`);
 }
 
+function addGradesAndShowPopup(newGrades, rubricName) {
+  const userProps = PropertiesService.getUserProperties();
+  const key       = `grades_${rubricName}`;
+
+  // Load what’s there
+  const existing = JSON.parse(userProps.getProperty(key) || '[]');
+
+  // Merge in any new ones
+  let combined = existing.concat(newGrades);
+
+  // Same zero-filter logic
+  if (combined.length > 1 && combined.some(n => n !== 0)) {
+    combined = combined.filter(n => n !== 0);
+  }
+
+  // Save the cleaned list
+  userProps.setProperty(key, JSON.stringify(combined));
+
+  // Show the popup with the filtered grades
+  const tpl = HtmlService.createTemplateFromFile('boxPlotPopup');
+  tpl.grades     = combined;
+  tpl.rubricName = rubricName;
+  const html = tpl.evaluate()
+    .setWidth(600)
+    .setHeight(500);
+  DocumentApp.getUi()
+    .showModalDialog(html, `Grades for '${rubricName}'`);
+}
+
+function appendGrades(newGrades, rubricName) {
+  const userProps = PropertiesService.getUserProperties();
+  const key       = `grades_${rubricName}`;
+
+  // 1. Load existing (or empty)
+  const existing = JSON.parse(userProps.getProperty(key) || '[]');
+
+  // 2. Merge
+  let combined = existing.concat(newGrades);
+
+  // 3. If there’s more than one grade & at least one non-zero,
+  //    filter out any 0’s (they were likely stray)
+  if (combined.length > 1 && combined.some(n => n !== 0)) {
+    combined = combined.filter(n => n !== 0);
+  }
+
+  // 4. Save back
+  userProps.setProperty(key, JSON.stringify(combined));
+
+  return `Added ${newGrades.length} grade(s). Total saved: ${combined.length}.`;
+}
 
 /**
  * Opens a sidebar in the document containing the add-on's user interface.
