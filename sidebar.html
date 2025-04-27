@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
   -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
+  <style id="theme-style">
     html, body {
       margin: 0; 
       padding: 0;
@@ -263,5 +263,47 @@
   });
 
   </script>
+  <div class="block">
+  <button onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+  <script>
+      let currentTheme = 'light';
+
+      function applyTheme(theme) {
+        const style = document.getElementById('theme-style');
+
+        if (theme === 'dark') {
+          style.innerHTML = `
+            body {
+              background-color: #1e1e1e;
+              color: white;
+              transition: background-color 0.3s ease, color 0.3s ease;
+            }
+          `;
+        } else {
+          style.innerHTML = `
+            body {
+              background-color: white;
+              color: black;
+              transition: background-color 0.3s ease, color 0.3s ease;
+            }
+          `;
+        }
+
+        currentTheme = theme;
+      }
+
+      function toggleTheme() {
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+
+        google.script.run.setUserTheme(newTheme);
+      }
+
+      // Load saved theme on page load
+      google.script.run.withSuccessHandler(function(theme) {
+        applyTheme(theme);
+      }).getUserTheme();
+    </script>
 </body>
 </html>
