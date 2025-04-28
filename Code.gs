@@ -510,3 +510,18 @@ function insertText(newText) {
     cursor.insertText(newText);
   }
 }
+//Function set for theme toggling
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+                    .setTitle("CSS Theme Toggle");
+}
+
+function getUserTheme() {
+  const userProps = PropertiesService.getUserProperties();
+  return userProps.getProperty('theme') || 'light';
+}
+
+function setUserTheme(theme) {
+  const userProps = PropertiesService.getUserProperties();
+  userProps.setProperty('theme', theme);
+}
